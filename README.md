@@ -81,7 +81,10 @@ El algoritmo K-Means es sensible a la escala y distribución de las variables. P
 1.  **Limpieza:** Se eliminaron registros con valores nulos y se filtraron datos atípicos negativos (ej. saldos negativos).
 2.  **Transformación Logarítmica:** Se aplicó la función $f(x) = \ln(1 + x)$ para corregir la alta asimetría positiva (skewness) de las variables monetarias y de frecuencia.
 3.  **Estandarización (Z-Score):** Las variables transformadas se escalaron para tener una media $\mu=0$ y una desviación estándar $\sigma=1$, asegurando que todas contribuyan por igual al cálculo de distancias euclidianas.
-    <img src="https://render.githubusercontent.com/render/math?math=Z = \frac{x_{log} - \mu_{log}}{\sigma_{log}}">
+
+$$
+Z = \frac{x_{log} - \mu_{log}}{\sigma_{log}}
+$$
 
 ### 5.2. Modelado y Entrenamiento
 - **Algoritmo:** Se eligió **MiniBatchKMeans** debido a la eficiencia computacional y de memoria que ofrece para datasets grandes (~882,600 registros), procesando los datos en lotes (`batch_size=10000`).
