@@ -81,7 +81,7 @@ El algoritmo K-Means es sensible a la escala y distribución de las variables. P
 1.  **Limpieza:** Se eliminaron registros con valores nulos y se filtraron datos atípicos negativos (ej. saldos negativos).
 2.  **Transformación Logarítmica:** Se aplicó la función $f(x) = \ln(1 + x)$ para corregir la alta asimetría positiva (skewness) de las variables monetarias y de frecuencia.
 3.  **Estandarización (Z-Score):** Las variables transformadas se escalaron para tener una media $\mu=0$ y una desviación estándar $\sigma=1$, asegurando que todas contribuyan por igual al cálculo de distancias euclidianas.
-    $$ Z = \frac{x_{log} - \mu_{log}}{\sigma_{log}} $$
+    <img src="https://render.githubusercontent.com/render/math?math=Z = \frac{x_{log} - \mu_{log}}{\sigma_{log}}">
 
 ### 5.2. Modelado y Entrenamiento
 - **Algoritmo:** Se eligió **MiniBatchKMeans** debido a la eficiencia computacional y de memoria que ofrece para datasets grandes (~882,600 registros), procesando los datos en lotes (`batch_size=10000`).
@@ -114,49 +114,67 @@ Para operacionalizar el modelo, se desarrolló un microservicio de inferencia:
 
 ## 7. Guía de Ejecución Local
 
-### Prerrequisitos
-*   Python 3.10+
-*   Node.js v18+ y npm
-*   Una instancia de SQL Server con la base de datos y la vista `vw_RFM_Matrix` configuradas.
-*   Un archivo `.env` en la raíz del proyecto con las credenciales de la base de datos.
+### 7.1. Prerrequisitos
+- Python 3.10+
+- Node.js 18+ y npm
+- SQL Server con la base de datos configurada
+- Archivo `.env` en la raíz con las credenciales de conexión
 
-### Paso 1: Configurar Backend (Python)
+### 7.2. Paso 1: Clonar el repositorio y preparar el entorno Python
 ```bash
-# 1. Clonar el repositorio y navegar a la raíz
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/Gabriel15278/bank-customer-segmentation-system
 cd Bank_Analysis
 
-# 2. Crear y activar un entorno virtual
 python -m venv venv
-.\venv\Scripts\activate  # En Windows
-# source venv/bin/activate  # En macOS/Linux
+.\venv\Scripts\activate      # Windows
+# source venv/bin/activate  # macOS/Linux
 
-# 3. Instalar dependencias
 pip install -r requirements.txt
 ```
 
-### Paso 2: Entrenar y Serializar el Modelo
-Este comando ejecutará el pipeline completo, conectándose a la base de datos, entrenando el modelo y guardando los artefactos `scaler.pkl` y `kmeans_model.pkl`.
+### 7.3. Paso 2: Preparar la base de datos y la vista analítica
+Ejecute los scripts en este orden:
+
+1. `src/database/schemas.sql`
+2. `src/database/etl_transform.sql`
+3. `src/database/analytical_views.sql`
+
+Esto crea la estructura de la base de datos, transforma la información y genera la vista `vw_RFM_Matrix` que usa el modelo.
+
+### 7.4. Paso 3: Entrenar y serializar el modelo
 ```bash
 python src/models/segmentation_model.py
 ```
 
-### Paso 3: Iniciar la API de Inferencia
+Este proceso conecta con la base de datos, genera la matriz RFM, entrena el modelo K-Means y guarda los artefactos `scaler.pkl` y `kmeans_model.pkl`.
+
+### 7.5. Paso 4: Iniciar la API FastAPI
 ```bash
 uvicorn src.api.main:app --reload
 ```
-La API estará disponible en `http://127.0.0.1:8000`.
 
-### Paso 4: Iniciar el Frontend (React)
-Abre una **nueva terminal** para ejecutar el cliente.
+La API queda disponible en:
+- `http://127.0.0.1:8000`
+
+### 7.6. Paso 5: Iniciar el frontend React
+Abre una nueva terminal y ejecuta:
+
 ```bash
-# 1. Navegar a la carpeta del cliente
 cd client
-
-# 2. Instalar dependencias de Node.js
 npm install
-
-# 3. Iniciar el servidor de desarrollo
 npm run dev
 ```
-La aplicación web estará accesible en `http://localhost:5173`.
+
+La aplicación web queda disponible en:
+- `http://localhost:5173`
+
+### 7.7. Orden correcto de ejecución
+Para que todo funcione de forma consistente, el flujo recomendado es:
+
+1. Preparar el entorno Python
+2. Crear la base de datos y vista analítica
+3. Entrenar el modelo
+4. Levantar la API
+5. Levantar el frontend
+
+> Si se ejecuta la API o el frontend antes de tener los datos y el modelo generados, la aplicación no tendrá la información necesaria para responder correctamente.
