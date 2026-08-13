@@ -83,7 +83,7 @@ El algoritmo K-Means es sensible a la escala y distribución de las variables. P
 3.  **Estandarización (Z-Score):** Las variables transformadas se escalaron para tener una media $\mu=0$ y una desviación estándar $\sigma=1$, asegurando que todas contribuyan por igual al cálculo de distancias euclidianas.
 
 $$
-Z = \frac{x_{log} - \mu_{log}}{\sigma_{log}}
+Z = \frac{x - \mu}{\sigma}
 $$
 
 ### 5.2. Modelado y Entrenamiento
